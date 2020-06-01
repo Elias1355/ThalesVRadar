@@ -22,6 +22,7 @@ public class ControllerInput : MonoBehaviour
     private bool itemGrabbed = false;
 
     public SteamVR_Action_Boolean m_touchpadAction=null;
+    public SteamVR_Action_Boolean m_gripAction = null;
 
     [SerializeField] private GameObject leftController = null;
     [SerializeField] private GameObject rightController = null;
@@ -52,6 +53,7 @@ public class ControllerInput : MonoBehaviour
             if (SteamVR_Actions._default.Squeeze.GetAxis(leftInput) == 1)
             {
                 playerRig.isLeftGripped = true;
+                Debug.Log("LeftPressed");
                 if(m_ContactGrabables.Count!=0)
                 {
                     if (itemGrabbed == false)
@@ -78,6 +80,7 @@ public class ControllerInput : MonoBehaviour
             if (SteamVR_Actions._default.Squeeze.GetAxis(rightInput) == 1)
             {
                 playerRig.isRightGripped = true;
+                Debug.Log("RightPressed");
                 if (m_ContactGrabables.Count != 0)
                 {
                     if (itemGrabbed == false)

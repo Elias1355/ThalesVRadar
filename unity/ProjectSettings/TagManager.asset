@@ -13,6 +13,7 @@ TagManager:
   - BallisticMissile
   - Interactable
   - Symbol
+  - IM
   layers:
   - Default
   - TransparentFX
