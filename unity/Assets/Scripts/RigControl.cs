@@ -70,6 +70,9 @@ public class RigControl : MonoBehaviour
     private int thalesCounter = 0;
     private int worldCounter = 0;
 
+    // Grab and Drop
+
+
     void Start()
     {
         thalesCounter = thalesMap.transform.childCount;
@@ -100,7 +103,7 @@ public class RigControl : MonoBehaviour
     /// </summary>
     void LoadWorld()
     {
-        timeLeft = 4f;
+        timeLeft = 1f;
 
         if (worldCounter != 0)
         {

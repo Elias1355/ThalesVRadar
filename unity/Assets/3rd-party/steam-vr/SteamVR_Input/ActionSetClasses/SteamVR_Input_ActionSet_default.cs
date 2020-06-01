@@ -89,6 +89,14 @@ namespace Valve.VR
             }
         }
         
+        public virtual SteamVR_Action_Single TrackPadPushed
+        {
+            get
+            {
+                return SteamVR_Actions.default_TrackPadPushed;
+            }
+        }
+        
         public virtual SteamVR_Action_Vibration Haptic
         {
             get

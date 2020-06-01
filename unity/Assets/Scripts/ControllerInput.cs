@@ -1,14 +1,27 @@
-﻿using System.Collections;
+﻿using Microsoft.SqlServer.Server;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Valve.VR;
+using Valve.VR.InteractionSystem;
 
 /// <summary>
 /// The inputchecker has to be on both the controller and needs the RigControl to work accordingly.
 /// </summary>
 public class ControllerInput : MonoBehaviour
 {
+    
     private SteamVR_TrackedObject trackedObj;
+
+    private SteamVR_Behaviour_Pose m_Pose = null;
+    private FixedJoint m_Joint = null;
+
+    private Grabable m_CurrentGrabable = null;
+    [SerializeField] private List<Grabable> m_ContactGrabables = new List<Grabable>();
+
+    private bool itemGrabbed = false;
+
+    public SteamVR_Action_Boolean m_touchpadAction=null;
 
     [SerializeField] private GameObject leftController = null;
     [SerializeField] private GameObject rightController = null;
@@ -16,6 +29,13 @@ public class ControllerInput : MonoBehaviour
 
     [HideInInspector] private SteamVR_Input_Sources leftInput = SteamVR_Input_Sources.LeftHand;
     [HideInInspector] private SteamVR_Input_Sources rightInput = SteamVR_Input_Sources.RightHand;
+
+    private void Awake()
+    {
+       
+        m_Pose = GetComponent<SteamVR_Behaviour_Pose>();
+        m_Joint = GetComponent<FixedJoint>();
+    }
 
     void Start()
     {
@@ -26,17 +46,30 @@ public class ControllerInput : MonoBehaviour
     void Update()
     {
         //checks which controllers is being used during the which sets the boolean on the respective controller to true or false when the trigger is used
-
+        //Debug.Log(itemGrabbed);
         if (gameObject == leftController)
         {
             if (SteamVR_Actions._default.Squeeze.GetAxis(leftInput) == 1)
             {
                 playerRig.isLeftGripped = true;
+                if(m_ContactGrabables.Count!=0)
+                {
+                    if (itemGrabbed == false)
+                    {
+                        StartCoroutine("Grabbing");
+                        StopCoroutine("Dropping");
+                    }
+                    if (itemGrabbed == true)
+                    {
+                        StopCoroutine("Grabbing");
+                        StartCoroutine("Dropping");
+                    }
+                }                
             }
 
             else
             {
-                playerRig.isLeftGripped = false;
+                playerRig.isLeftGripped = false;               
             }
         }
 
@@ -45,12 +78,98 @@ public class ControllerInput : MonoBehaviour
             if (SteamVR_Actions._default.Squeeze.GetAxis(rightInput) == 1)
             {
                 playerRig.isRightGripped = true;
+                if (m_ContactGrabables.Count != 0)
+                {
+                    if (itemGrabbed == false)
+                    {
+                        StartCoroutine("Grabbing");
+                        StopCoroutine("Dropping");
+                    }
+                    if (itemGrabbed == true)
+                    {
+                        StopCoroutine("Grabbing");
+                        StartCoroutine("Dropping");
+                    }
+                }
             }
             
             else
             {
-                playerRig.isRightGripped = false;
+                playerRig.isRightGripped = false;                
             }
         }
+        if(itemGrabbed==true)
+        {
+            if (m_touchpadAction.GetStateDown(m_Pose.inputSource))
+            {
+                Debug.Log("ButtonClicked");
+                if (itemGrabbed == true)
+                {
+                    m_CurrentGrabable.action();
+                }
+            }
+        }       
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (!other.gameObject.CompareTag("Interactable"))
+            return;
+
+        m_ContactGrabables.Add(other.gameObject.GetComponent<Grabable>());
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (!other.gameObject.CompareTag("Interactable"))
+            return;
+
+        m_ContactGrabables.Remove(other.gameObject.GetComponent<Grabable>());
+    }    
+
+    IEnumerator Grabbing()
+    {
+        m_CurrentGrabable = NearestGrabable();
+       
+        // Positioning
+        //m_CurrentGrabable.transform.position = transform.position;
+        m_CurrentGrabable.applyoffset(transform);
+        //Attach
+        Rigidbody targetBody = m_CurrentGrabable.GetComponent<Rigidbody>();
+        m_Joint.connectedBody = targetBody;
+        //Activate
+        m_CurrentGrabable.m_Activated = this;
+
+        yield return new WaitForSeconds(1f);
+        itemGrabbed = true;       
+    }
+
+    IEnumerator Dropping()
+    {
+        //Dettach
+        m_Joint.connectedBody = null;
+        //Deactivate
+        m_CurrentGrabable.m_Activated = null;
+        yield return new WaitForSeconds(1f);
+        itemGrabbed = false;
+    }
+
+    
+
+    private Grabable NearestGrabable()
+    {
+        Grabable nearest = null;
+        float minDistance = float.MaxValue;
+        float distance = 0.0f;
+        foreach(Grabable grabables in m_ContactGrabables)
+        {
+            distance = (grabables.transform.position - transform.position).sqrMagnitude;
+            if(distance<minDistance)
+            {
+                minDistance = distance;
+                nearest = grabables;
+            }
+        }    
+        return nearest;
     }
 }

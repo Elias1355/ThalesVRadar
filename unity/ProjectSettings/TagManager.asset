@@ -7,6 +7,12 @@ TagManager:
   - projectile
   - FxTemporaire
   - Spline
+  - trajectory
+  - BMLaunchPoint
+  - target
+  - BallisticMissile
+  - Interactable
+  - Symbol
   layers:
   - Default
   - TransparentFX
