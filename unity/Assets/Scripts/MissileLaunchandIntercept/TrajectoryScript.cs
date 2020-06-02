@@ -13,6 +13,8 @@ public class TrajectoryScript : MonoBehaviour
     private Vector3[] positions=new Vector3[50];
     private int numpoints = 40;
 
+    public GameObject Radar;
+
     private void Start()
     {       
         lineRenderer =gameObject.GetComponent<LineRenderer>();
@@ -20,7 +22,10 @@ public class TrajectoryScript : MonoBehaviour
     }
     private void Update()
     {
-        drawLineCurve();
+        if(Radar.GetComponent<RadarDetection>().MissileDetected==true)
+        {
+            drawLineCurve();
+        }        
     }
 
     private void OnDrawGizmos()

@@ -52,21 +52,7 @@ public class ControllerInput : MonoBehaviour
         {
             if (SteamVR_Actions._default.Squeeze.GetAxis(leftInput) == 1)
             {
-                playerRig.isLeftGripped = true;
-                Debug.Log("LeftPressed");
-                if(m_ContactGrabables.Count!=0)
-                {
-                    if (itemGrabbed == false)
-                    {
-                        StartCoroutine("Grabbing");
-                        StopCoroutine("Dropping");
-                    }
-                    if (itemGrabbed == true)
-                    {
-                        StopCoroutine("Grabbing");
-                        StartCoroutine("Dropping");
-                    }
-                }                
+                playerRig.isLeftGripped = true;                              
             }
 
             else
@@ -79,21 +65,7 @@ public class ControllerInput : MonoBehaviour
         {
             if (SteamVR_Actions._default.Squeeze.GetAxis(rightInput) == 1)
             {
-                playerRig.isRightGripped = true;
-                Debug.Log("RightPressed");
-                if (m_ContactGrabables.Count != 0)
-                {
-                    if (itemGrabbed == false)
-                    {
-                        StartCoroutine("Grabbing");
-                        StopCoroutine("Dropping");
-                    }
-                    if (itemGrabbed == true)
-                    {
-                        StopCoroutine("Grabbing");
-                        StartCoroutine("Dropping");
-                    }
-                }
+                playerRig.isRightGripped = true;                
             }
             
             else
@@ -101,6 +73,24 @@ public class ControllerInput : MonoBehaviour
                 playerRig.isRightGripped = false;                
             }
         }
+
+        if(m_gripAction.GetStateDown(m_Pose.inputSource))
+        {
+            if (m_ContactGrabables.Count != 0)
+            {
+                if (itemGrabbed == false)
+                {
+                    StartCoroutine("Grabbing");
+                    StopCoroutine("Dropping");
+                }
+                if (itemGrabbed == true)
+                {
+                    StopCoroutine("Grabbing");
+                    StartCoroutine("Dropping");
+                }
+            }
+        }
+
         if(itemGrabbed==true)
         {
             if (m_touchpadAction.GetStateDown(m_Pose.inputSource))
